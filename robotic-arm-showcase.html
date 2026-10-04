@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Arduino Robotic Arm Showcase</title>
+<style>:root{--foreground:#e8edf5;--muted-foreground:#9aaac0;--border:#33445c;--card:#142238;--viz-series-1:#60a5fa;--viz-series-2:#34d399;--viz-series-3:#c084fc;--viz-series-4:#fbbf24}*{box-sizing:border-box}body{margin:0;background:#0b1424;color:var(--foreground);font:16px system-ui,sans-serif;padding:24px}main{max-width:1000px;margin:auto}.viz-row{display:flex;gap:8px}.btn{padding:10px 18px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--foreground);cursor:pointer}.btn-primary{border-color:var(--viz-series-2)}.form-range{width:100%;accent-color:var(--viz-series-1)}.text-small{font-size:13px}p{color:var(--muted-foreground);line-height:1.6}</style></head><body><main>
+<div id="robotic-arm-showcase" class="robotic-arm-showcase">
+  <style>
+    #robotic-arm-showcase {
+      color: var(--foreground);
+      display: grid;
+      gap: 14px;
+      width: 100%;
+    }
+
+    #robotic-arm-showcase .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    #robotic-arm-showcase h2,
+    #robotic-arm-showcase h3 {
+      margin: 0;
+    }
+
+    #robotic-arm-showcase .stage {
+      display: grid;
+      gap: 10px;
+    }
+
+    #robotic-arm-showcase svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    #robotic-arm-showcase .frame {
+      fill: transparent;
+      stroke: var(--border);
+      stroke-width: 1;
+    }
+
+    #robotic-arm-showcase .floor,
+    #robotic-arm-showcase .rail {
+      stroke: var(--border);
+      stroke-width: 2;
+      opacity: 0.82;
+    }
+
+    #robotic-arm-showcase .soft-fill-1 {
+      fill: color-mix(in srgb, var(--viz-series-1) 18%, transparent);
+    }
+
+    #robotic-arm-showcase .soft-fill-2 {
+      fill: color-mix(in srgb, var(--viz-series-2) 20%, transparent);
+    }
+
+    #robotic-arm-showcase .soft-fill-3 {
+      fill: color-mix(in srgb, var(--viz-series-3) 20%, transparent);
+    }
+
+    #robotic-arm-showcase .servo {
+      fill: var(--card);
+      stroke: var(--foreground);
+      stroke-width: 2;
+    }
+
+    #robotic-arm-showcase .arm-link {
+      stroke: var(--viz-series-1);
+      stroke-width: 20;
+      stroke-linecap: round;
+      fill: none;
+    }
+
+    #robotic-arm-showcase .arm-link-shadow {
+      stroke: var(--border);
+      stroke-width: 28;
+      stroke-linecap: round;
+      opacity: 0.32;
+      fill: none;
+    }
+
+    #robotic-arm-showcase .gripper {
+      stroke: var(--viz-series-2);
+      stroke-width: 8;
+      stroke-linecap: round;
+      fill: none;
+    }
+
+    #robotic-arm-showcase .signal {
+      stroke: var(--viz-series-3);
+      stroke-width: 2;
+      stroke-dasharray: 6 7;
+      fill: none;
+      opacity: 0.86;
+    }
+
+    #robotic-arm-showcase .ghost-path {
+      stroke: var(--muted-foreground);
+      stroke-width: 1.5;
+      stroke-dasharray: 4 6;
+      fill: none;
+      opacity: 0.7;
+    }
+
+    #robotic-arm-showcase .box {
+      fill: var(--viz-series-4);
+      opacity: 0.86;
+    }
+
+    #robotic-arm-showcase .drop-zone {
+      fill: color-mix(in srgb, var(--viz-series-2) 12%, transparent);
+      stroke: var(--viz-series-2);
+      stroke-width: 1.5;
+      stroke-dasharray: 5 5;
+    }
+
+    #robotic-arm-showcase text {
+      fill: var(--foreground);
+      font-size: 12px;
+    }
+
+    #robotic-arm-showcase .muted {
+      fill: var(--muted-foreground);
+      color: var(--muted-foreground);
+    }
+
+    #robotic-arm-showcase .small {
+      font-size: 11px;
+    }
+
+    #robotic-arm-showcase .controls {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 14px;
+    }
+
+    #robotic-arm-showcase .control {
+      display: grid;
+      gap: 5px;
+    }
+
+    #robotic-arm-showcase .control-line,
+    #robotic-arm-showcase .readout {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    #robotic-arm-showcase .readout {
+      flex-wrap: wrap;
+    }
+
+    #robotic-arm-showcase .phase-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    #robotic-arm-showcase .phase {
+      color: var(--muted-foreground);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #robotic-arm-showcase .phase::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--muted-foreground);
+      opacity: 0.55;
+    }
+
+    #robotic-arm-showcase .phase.active {
+      color: var(--foreground);
+      font-weight: 500;
+    }
+
+    #robotic-arm-showcase .phase.active::before {
+      background: var(--viz-series-2);
+      opacity: 1;
+    }
+
+    #robotic-arm-showcase code {
+      white-space: nowrap;
+    }
+
+    @media (max-width: 640px) {
+      #robotic-arm-showcase .controls {
+        grid-template-columns: 1fr;
+      }
+
+      #robotic-arm-showcase .readout {
+        align-items: flex-start;
+      }
+    }
+  </style>
+
+  <div class="topbar">
+    <h2>Robotic arm pick-and-place demo</h2>
+    <div class="viz-row">
+      <button type="button" class="btn btn-primary" id="ras-play">Pause</button>
+      <button type="button" class="btn" id="ras-reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="stage">
+    <svg viewBox="0 0 820 430" role="img" aria-labelledby="ras-title ras-desc">
+      <title id="ras-title">Animated four-axis Arduino robotic arm</title>
+      <desc id="ras-desc">A robotic arm uses base rotation, shoulder, elbow, and gripper movement to pick a cube and place it in a target zone.</desc>
+
+      <rect class="frame" x="8" y="8" width="804" height="414" rx="10"></rect>
+      <line class="floor" x1="50" y1="356" x2="770" y2="356"></line>
+      <line class="rail" x1="93" y1="382" x2="706" y2="382"></line>
+      <line class="rail" x1="120" y1="399" x2="680" y2="399"></line>
+
+      <path id="ras-path" class="ghost-path" d="M 320 210 C 430 118, 580 150, 635 264"></path>
+      <path id="ras-signal" class="signal" d="M 118 92 C 190 54, 250 72, 318 120"></path>
+
+      <g id="ras-camera">
+        <rect class="soft-fill-3" x="64" y="58" width="108" height="68" rx="12"></rect>
+        <circle class="servo" cx="118" cy="92" r="19"></circle>
+        <circle class="soft-fill-3" cx="118" cy="92" r="9"></circle>
+        <text x="118" y="146" text-anchor="middle">camera upgrade</text>
+        <text class="muted small" x="118" y="163" text-anchor="middle">Python to Arduino serial</text>
+      </g>
+
+      <g id="ras-base-dial">
+        <circle class="soft-fill-1" cx="222" cy="316" r="42"></circle>
+        <circle class="servo" cx="222" cy="316" r="20"></circle>
+        <line id="ras-base-pointer" class="gripper" x1="222" y1="316" x2="222" y2="276"></line>
+        <text x="222" y="374" text-anchor="middle">base D3</text>
+      </g>
+
+      <g id="ras-arm">
+        <ellipse class="soft-fill-1" cx="380" cy="356" rx="92" ry="20"></ellipse>
+        <rect class="servo" x="320" y="326" width="120" height="38" rx="10"></rect>
+        <text class="muted small" x="380" y="350" text-anchor="middle">Arduino Uno + servos</text>
+
+        <line id="ras-upper-shadow" class="arm-link-shadow" x1="380" y1="326" x2="380" y2="215"></line>
+        <line id="ras-lower-shadow" class="arm-link-shadow" x1="380" y1="215" x2="480" y2="190"></line>
+        <line id="ras-upper" class="arm-link" x1="380" y1="326" x2="380" y2="215"></line>
+        <line id="ras-lower" class="arm-link" x1="380" y1="215" x2="480" y2="190"></line>
+
+        <circle id="ras-shoulder" class="servo" cx="380" cy="326" r="20"></circle>
+        <circle id="ras-elbow" class="servo" cx="380" cy="215" r="17"></circle>
+        <circle id="ras-wrist" class="servo" cx="480" cy="190" r="13"></circle>
+
+        <line id="ras-claw-a" class="gripper" x1="480" y1="190" x2="522" y2="170"></line>
+        <line id="ras-claw-b" class="gripper" x1="480" y1="190" x2="522" y2="210"></line>
+      </g>
+
+      <rect id="ras-cube" class="box" x="596" y="326" width="38" height="30" rx="4"></rect>
+      <rect class="drop-zone" x="650" y="318" width="70" height="38" rx="8"></rect>
+      <text class="muted small" x="685" y="374" text-anchor="middle">drop zone</text>
+
+      <text id="ras-shoulder-label" class="muted small" x="512" y="60">shoulder: 90 deg</text>
+      <text id="ras-elbow-label" class="muted small" x="512" y="78">elbow: 90 deg</text>
+      <text id="ras-gripper-label" class="muted small" x="512" y="96">gripper: 90 deg</text>
+      <text id="ras-base-label" class="muted small" x="512" y="114">base: 90 deg</text>
+    </svg>
+  </div>
+
+  <div class="readout text-small">
+    <div class="phase-list" aria-label="Animation phases">
+      <span class="phase active" data-phase="home">home</span>
+      <span class="phase" data-phase="reach">reach</span>
+      <span class="phase" data-phase="grip">grip</span>
+      <span class="phase" data-phase="lift">lift</span>
+      <span class="phase" data-phase="place">place</span>
+      <span class="phase" data-phase="release">release</span>
+    </div>
+    <div>
+      serial: <code id="ras-serial">90,90,90,90</code>
+    </div>
+  </div>
+
+  <div class="controls">
+    <label class="control">
+      <span class="control-line">
+        <span>Base rotation</span>
+        <span class="muted"><span id="ras-base-value">90</span> deg</span>
+      </span>
+      <input id="ras-base-slider" class="form-range" type="range" min="0" max="180" value="90">
+    </label>
+
+    <label class="control">
+      <span class="control-line">
+        <span>Shoulder</span>
+        <span class="muted"><span id="ras-shoulder-value">90</span> deg</span>
+      </span>
+      <input id="ras-shoulder-slider" class="form-range" type="range" min="25" max="155" value="90">
+    </label>
+
+    <label class="control">
+      <span class="control-line">
+        <span>Elbow</span>
+        <span class="muted"><span id="ras-elbow-value">90</span> deg</span>
+      </span>
+      <input id="ras-elbow-slider" class="form-range" type="range" min="20" max="160" value="90">
+    </label>
+
+    <label class="control">
+      <span class="control-line">
+        <span>Gripper</span>
+        <span class="muted"><span id="ras-gripper-value">90</span> deg</span>
+      </span>
+      <input id="ras-gripper-slider" class="form-range" type="range" min="45" max="120" value="90">
+    </label>
+  </div>
+
+  <div id="ras-status" class="text-small muted" aria-live="polite">
+    Auto demo: the arm reaches, grips the cube, lifts, rotates, places, and releases.
+  </div>
+
+  <script>
+    (() => {
+      const root = document.getElementById("robotic-arm-showcase");
+      const $ = selector => root.querySelector(selector);
+      const $$ = selector => Array.from(root.querySelectorAll(selector));
+
+      const controls = {
+        base: $("#ras-base-slider"),
+        shoulder: $("#ras-shoulder-slider"),
+        elbow: $("#ras-elbow-slider"),
+        gripper: $("#ras-gripper-slider")
+      };
+      const valueText = {
+        base: $("#ras-base-value"),
+        shoulder: $("#ras-shoulder-value"),
+        elbow: $("#ras-elbow-value"),
+        gripper: $("#ras-gripper-value")
+      };
+      const labels = {
+        base: $("#ras-base-label"),
+        shoulder: $("#ras-shoulder-label"),
+        elbow: $("#ras-elbow-label"),
+        gripper: $("#ras-gripper-label")
+      };
+
+      const playButton = $("#ras-play");
+      const resetButton = $("#ras-reset");
+      const status = $("#ras-status");
+      const serial = $("#ras-serial");
+      const upper = $("#ras-upper");
+      const lower = $("#ras-lower");
+      const upperShadow = $("#ras-upper-shadow");
+      const lowerShadow = $("#ras-lower-shadow");
+      const elbowJoint = $("#ras-elbow");
+      const wristJoint = $("#ras-wrist");
+      const clawA = $("#ras-claw-a");
+      const clawB = $("#ras-claw-b");
+      const cube = $("#ras-cube");
+      const basePointer = $("#ras-base-pointer");
+      const phaseDots = $$(".phase");
+
+      const shoulderX = 380;
+      const shoulderY = 326;
+      const upperLength = 116;
+      const lowerLength = 108;
+      const clawLength = 48;
+      const defaultAngles = { base: 90, shoulder: 90, elbow: 90, gripper: 90 };
+      let playing = true;
+      let frameId = null;
+      let start = 0;
+      let currentPhase = "home";
+
+      const toRadians = degrees => degrees * Math.PI / 180;
+      const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+      const mix = (a, b, t) => a + (b - a) * t;
+      const smooth = t => t * t * (3 - 2 * t);
+
+      function setLine(line, x1, y1, x2, y2) {
+        line.setAttribute("x1", x1.toFixed(1));
+        line.setAttribute("y1", y1.toFixed(1));
+        line.setAttribute("x2", x2.toFixed(1));
+        line.setAttribute("y2", y2.toFixed(1));
+      }
+
+      function setCircle(circle, x, y) {
+        circle.setAttribute("cx", x.toFixed(1));
+        circle.setAttribute("cy", y.toFixed(1));
+      }
+
+      function setCube(x, y, angle) {
+        cube.setAttribute("x", (x - 19).toFixed(1));
+        cube.setAttribute("y", (y - 15).toFixed(1));
+        cube.setAttribute("transform", `rotate(${angle.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)})`);
+      }
+
+      function setPhase(name) {
+        if (currentPhase === name) return;
+        currentPhase = name;
+        phaseDots.forEach(dot => {
+          dot.classList.toggle("active", dot.dataset.phase === name);
+        });
+      }
+
+      function updateFromAngles(angles, carryCube) {
+        const base = clamp(Math.round(angles.base), 0, 180);
+        const shoulder = clamp(Math.round(angles.shoulder), 25, 155);
+        const elbow = clamp(Math.round(angles.elbow), 20, 160);
+        const gripper = clamp(Math.round(angles.gripper), 45, 120);
+
+        controls.base.value = base;
+        controls.shoulder.value = shoulder;
+        controls.elbow.value = elbow;
+        controls.gripper.value = gripper;
+
+        valueText.base.textContent = base;
+        valueText.shoulder.textContent = shoulder;
+        valueText.elbow.textContent = elbow;
+        valueText.gripper.textContent = gripper;
+
+        labels.base.textContent = `base: ${base} deg`;
+        labels.shoulder.textContent = `shoulder: ${shoulder} deg`;
+        labels.elbow.textContent = `elbow: ${elbow} deg`;
+        labels.gripper.textContent = `gripper: ${gripper} deg`;
+        serial.textContent = `${base},${shoulder},${elbow},${gripper}`;
+
+        const baseRad = toRadians(base - 90);
+        setLine(basePointer, 222, 316, 222 + Math.sin(baseRad) * 42, 316 - Math.cos(baseRad) * 42);
+
+        const shoulderRad = toRadians(shoulder - 190);
+        const elbowRad = shoulderRad + toRadians(elbow - 74);
+        const elbowX = shoulderX + Math.cos(shoulderRad) * upperLength;
+        const elbowY = shoulderY + Math.sin(shoulderRad) * upperLength;
+        const wristX = elbowX + Math.cos(elbowRad) * lowerLength;
+        const wristY = elbowY + Math.sin(elbowRad) * lowerLength;
+
+        setLine(upperShadow, shoulderX, shoulderY, elbowX, elbowY);
+        setLine(lowerShadow, elbowX, elbowY, wristX, wristY);
+        setLine(upper, shoulderX, shoulderY, elbowX, elbowY);
+        setLine(lower, elbowX, elbowY, wristX, wristY);
+        setCircle(elbowJoint, elbowX, elbowY);
+        setCircle(wristJoint, wristX, wristY);
+
+        const gripperOpen = (gripper - 45) / 75;
+        const spread = toRadians(15 + gripperOpen * 33);
+        setLine(clawA, wristX, wristY, wristX + Math.cos(elbowRad - spread) * clawLength, wristY + Math.sin(elbowRad - spread) * clawLength);
+        setLine(clawB, wristX, wristY, wristX + Math.cos(elbowRad + spread) * clawLength, wristY + Math.sin(elbowRad + spread) * clawLength);
+
+        if (carryCube) {
+          setCube(wristX + Math.cos(elbowRad) * 55, wristY + Math.sin(elbowRad) * 55, base - 90);
+        }
+      }
+
+      function poseAt(t) {
+        const cycle = 11.5;
+        const time = t % cycle;
+        const poses = [
+          { at: 0.0, phase: "home", angles: { base: 90, shoulder: 86, elbow: 90, gripper: 118 }, carry: false, cube: [615, 341] },
+          { at: 1.8, phase: "reach", angles: { base: 74, shoulder: 118, elbow: 66, gripper: 118 }, carry: false, cube: [615, 341] },
+          { at: 3.2, phase: "grip", angles: { base: 74, shoulder: 118, elbow: 66, gripper: 52 }, carry: true },
+          { at: 5.0, phase: "lift", angles: { base: 88, shoulder: 73, elbow: 112, gripper: 52 }, carry: true },
+          { at: 7.1, phase: "place", angles: { base: 135, shoulder: 105, elbow: 82, gripper: 52 }, carry: true },
+          { at: 8.7, phase: "release", angles: { base: 135, shoulder: 105, elbow: 82, gripper: 118 }, carry: false, cube: [685, 337] },
+          { at: 10.2, phase: "home", angles: { base: 90, shoulder: 86, elbow: 90, gripper: 118 }, carry: false, cube: [685, 337] },
+          { at: cycle, phase: "home", angles: { base: 90, shoulder: 86, elbow: 90, gripper: 118 }, carry: false, cube: [615, 341] }
+        ];
+
+        let from = poses[0];
+        let to = poses[1];
+        for (let i = 0; i < poses.length - 1; i++) {
+          if (time >= poses[i].at && time <= poses[i + 1].at) {
+            from = poses[i];
+            to = poses[i + 1];
+            break;
+          }
+        }
+
+        const local = smooth((time - from.at) / (to.at - from.at || 1));
+        const angles = {
+          base: mix(from.angles.base, to.angles.base, local),
+          shoulder: mix(from.angles.shoulder, to.angles.shoulder, local),
+          elbow: mix(from.angles.elbow, to.angles.elbow, local),
+          gripper: mix(from.angles.gripper, to.angles.gripper, local)
+        };
+
+        const cube = from.cube && to.cube
+          ? [mix(from.cube[0], to.cube[0], local), mix(from.cube[1], to.cube[1], local)]
+          : from.cube || to.cube;
+
+        return { phase: from.phase, angles, carry: from.carry || to.carry, cube };
+      }
+
+      function animate(timestamp) {
+        if (!start) start = timestamp;
+        const scene = poseAt((timestamp - start) / 1000);
+        setPhase(scene.phase);
+        updateFromAngles(scene.angles, scene.carry);
+        if (!scene.carry && scene.cube) setCube(scene.cube[0], scene.cube[1], 0);
+        frameId = requestAnimationFrame(animate);
+      }
+
+      function manualUpdate() {
+        const angles = {
+          base: Number(controls.base.value),
+          shoulder: Number(controls.shoulder.value),
+          elbow: Number(controls.elbow.value),
+          gripper: Number(controls.gripper.value)
+        };
+        updateFromAngles(angles, false);
+        setCube(615, 341, 0);
+        setPhase("home");
+      }
+
+      Object.values(controls).forEach(input => {
+        input.addEventListener("input", () => {
+          playing = false;
+          playButton.textContent = "Play";
+          cancelAnimationFrame(frameId);
+          status.textContent = "Manual mode: adjust angles the same way Arduino writes each servo.";
+          manualUpdate();
+        });
+      });
+
+      playButton.addEventListener("click", () => {
+        playing = !playing;
+        playButton.textContent = playing ? "Pause" : "Play";
+        status.textContent = playing
+          ? "Auto demo: the arm reaches, grips the cube, lifts, rotates, places, and releases."
+          : "Paused: use the sliders to test each axis manually.";
+        if (playing) {
+          start = 0;
+          frameId = requestAnimationFrame(animate);
+        } else {
+          cancelAnimationFrame(frameId);
+        }
+      });
+
+      resetButton.addEventListener("click", () => {
+        playing = false;
+        playButton.textContent = "Play";
+        cancelAnimationFrame(frameId);
+        updateFromAngles(defaultAngles, false);
+        setCube(615, 341, 0);
+        setPhase("home");
+        status.textContent = "Reset to the neutral 90-degree position.";
+      });
+
+      updateFromAngles(defaultAngles, false);
+      setCube(615, 341, 0);
+      frameId = requestAnimationFrame(animate);
+    })();
+  </script>
+</div>
+
+<p>Concept animation with manual servo-angle controls. This page does not connect to hardware. The camera and serial readout illustrate a planned upgrade; the joystick Arduino sketch does not implement serial control. Mechanical movement and safe angle limits require calibration on your own arm.</p>
+</main></body></html>
