@@ -25,6 +25,9 @@ Joystick deflection changes angle in 2° steps about every 20 ms; releasing the 
 
 Power the Uno by USB and the joystick modules from Uno 5V/GND. Power servos from a separate regulated supply matching their ratings; join grounds. Do not connect the servo supply positive rail to Uno 5V.
 
+## Animated explainer video
+[Watch or download the 64-second MP4](media/robotic-arm-explainer.mp4) — 720p, 24 fps, with on-screen explanations (no audio). Shows each joint, joystick controls, power/control flow and a simulated pick-and-place sequence. This is animated simulation, not hardware test footage. [Chapters and regeneration instructions](docs/video.md).
+
 ## Browser demonstration
 Download [robotic-arm-showcase.html](robotic-arm-showcase.html) and open it in a modern browser. It contains play/pause, reset and four angle sliders. GitHub's file view displays the source; download it to run it.
 

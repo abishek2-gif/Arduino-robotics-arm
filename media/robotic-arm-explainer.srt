@@ -1,0 +1,39 @@
+1
+00:00:00,000 --> 00:00:08,000
+Four movements. One small robot.
+A virtual model explains the project. Actual hardware still needs testing.
+
+2
+00:00:08,000 --> 00:00:16,000
+Turn left. Turn right.
+Moving the base rotates the whole arm around its vertical axis.
+
+3
+00:00:16,000 --> 00:00:24,000
+Raise the arm. Lower the arm.
+The shoulder lifts the links and everything they carry.
+
+4
+00:00:24,000 --> 00:00:32,000
+Reach out. Fold back.
+Changing the elbow angle changes the reach of the gripper.
+
+5
+00:00:32,000 --> 00:00:40,000
+Open. Close. Hold an object.
+Close gently around an object. Grip strength depends on the real mechanism.
+
+6
+00:00:40,000 --> 00:00:48,000
+You move the stick. The Uno responds.
+Servos use a separate rated supply. Connect supply ground to Uno ground.
+
+7
+00:00:48,000 --> 00:00:56,000
+Reach. Grip. Lift. Turn. Place.
+The scripted motion here is a simulation, not an autonomous hardware feature.
+
+8
+00:00:56,000 --> 00:01:04,000
+Wire. Calibrate. Test. Then extend.
+Camera → Python → USB → Uno is a planned upgrade, not implemented yet.

@@ -1,4 +1,9 @@
 # Demo video
+
+## Animated explainer — available
+[Watch the 64-second robotic arm explainer](../media/robotic-arm-explainer.mp4). It includes moving joints, joystick control, the power/control explanation and a simulated pick-and-place sequence. Silent with on-screen captions. [Video details](video.md).
+
+## Physical hardware footage
 **Hardware video: not recorded yet.** Add a real video URL here after testing.
 
 ## Suggested 45–60 second sequence
