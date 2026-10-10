@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Arduino Robotic Arm — 3D Portfolio</title>
+<style>
+:root{--bg:#04070d;--fg:#e6f1ff;--mut:#9db0c8;--ac:#00e5ff;--ac2:#8a5cff;--card:rgba(7,14,26,.72);--ln:rgba(0,229,255,.28);--ok:#2ef2a0;--wa:#ffb84d;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow-x:hidden}
+#c{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+.vig{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(120% 90% at 50% 40%,transparent 55%,#04070d 100%)}
+main{position:relative;z-index:2;max-width:1000px;margin:auto;padding:0 20px}
+section{min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;padding:30px 0 40px}
+@media(min-width:800px){section{justify-content:center}section>.card,section>.hero{max-width:430px}}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:18px;padding:20px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 0 40px -14px var(--ac)}
+.tag{font:12px ui-monospace,Menlo,monospace;letter-spacing:.2em;color:var(--ac);text-transform:uppercase}
+h1{font-size:clamp(2.4rem,9vw,4.6rem);line-height:1;margin:.15em 0 .25em;letter-spacing:-.03em;background:linear-gradient(100deg,#fff,var(--ac) 60%,var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{margin:.2em 0 .4em;font-size:1.6rem}
+p{margin:.4em 0;color:var(--mut)}
+.k{font:700 1.5rem ui-monospace,Menlo,monospace;color:var(--ac)}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.pill{font:12px ui-monospace,Menlo,monospace;padding:3px 10px;border-radius:99px;border:1px solid currentColor;display:inline-block}
+.btn{display:inline-block;padding:10px 18px;border-radius:99px;background:linear-gradient(90deg,var(--ac),var(--ac2));color:#fff;text-decoration:none;margin-top:10px}
+.rv{opacity:0;transform:translateY(30px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
+.rv.in{opacity:1;transform:none}
+#hud{position:fixed;z-index:3;right:12px;top:calc(12px + env(safe-area-inset-top,0px));width:178px;padding:10px 12px;border-radius:14px;background:var(--card);border:1px solid var(--ln);backdrop-filter:blur(10px);font:11px ui-monospace,Menlo,monospace}
+#hud .ph{color:var(--ac);margin-bottom:6px;min-height:2.6em}
+#hud div.r{display:grid;grid-template-columns:44px 1fr 34px;gap:6px;align-items:center;margin:3px 0;color:var(--mut)}
+#hud i{display:block;height:5px;border-radius:3px;background:rgba(255,255,255,.1);overflow:hidden}
+#hud i b{display:block;height:100%;width:50%;background:linear-gradient(90deg,var(--ac),var(--ac2))}
+.lb{position:fixed;z-index:2;left:0;top:0;pointer-events:none;font:10px ui-monospace,Menlo,monospace;color:var(--ac);padding:2px 7px;border:1px solid var(--ln);border-radius:99px;background:rgba(4,7,13,.7);white-space:nowrap;transition:opacity .5s;will-change:transform}
+#err{display:none;position:fixed;inset:0;z-index:5;place-items:center;text-align:center;padding:30px}
+</style></head><body>
+<canvas id="c"></canvas><div class="vig"></div>
+<div id="err">3D needs WebGL and the three.js library to load. Reload with a connection.</div>
+<div id="hud"><div class="ph" id="ph">Booting…</div>
+ <div class="r">BASE<i><b id="b0"></b></i><span id="n0"></span></div>
+ <div class="r">SHLDR<i><b id="b1"></b></i><span id="n1"></span></div>
+ <div class="r">ELBOW<i><b id="b2"></b></i><span id="n2"></span></div>
+ <div class="r">GRIP<i><b id="b3"></b></i><span id="n3"></span></div>
+ <div style="color:var(--mut);margin-top:4px;font-size:9px">illustrative servo angles</div></div>
+<div class="lb" data-p="0">BASE · D3</div><div class="lb" data-p="1">SHOULDER · D5</div><div class="lb" data-p="2">ELBOW · D6</div><div class="lb" data-p="3">GRIPPER · D9</div>
+<main>
+<section data-cam="0"><div class="hero rv"><div class="tag">Embedded systems · Arduino Uno</div><h1>Arduino<br>Robotic Arm</h1><p>Four servos. Two joysticks. One Uno. Watch the arm pick a part and place it, then scroll to see how every joint works.</p><a class="btn" href="https://github.com/abishek2-gif/Arduino-robotics-arm">View on GitHub</a></div></section>
+<section data-cam="1"><div class="card rv"><div class="tag">01 · Base &amp; shoulder</div><h2>Turn, then reach</h2><p>Joystick 1 reads on A0 and A1. The base servo on D3 swings the whole turret from 0–180°. The shoulder servo on D5 lifts the upper arm between 25° and 155°.</p></div></section>
+<section data-cam="2"><div class="card rv"><div class="tag">02 · Elbow</div><h2>Fold the forearm</h2><p>Joystick 2 VRx on A2 drives the elbow servo on D6, limited to 20–160°. The sketch moves the angle in <span class="k" style="font-size:1rem">±2°</span> steps about every 20 ms while the stick is held, and holds the angle when released.</p></div></section>
+<section data-cam="3"><div class="card rv"><div class="tag">03 · Gripper</div><h2>Open and close</h2><p>Joystick 2 VRy on A3 controls the gripper servo on D9, 45–120°. This is the pick and place animation, simulated here, not recorded from hardware.</p></div></section>
+<section data-cam="4"><div class="card rv"><div class="tag">04 · Power</div><h2>Keep servo power separate</h2><p>The Uno runs from USB and feeds the joystick modules. The servos take a separate regulated supply. Join the grounds. Never connect the servo supply positive to the Uno 5V pin.</p></div></section>
+<section data-cam="5"><div class="card rv"><div class="tag">Honest status</div><h2>Where it stands</h2>
+<div class="row"><span class="pill" style="color:var(--ok)">DONE: firmware, docs, video</span><span class="pill" style="color:var(--wa)">UNCONFIRMED: build, calibration, hardware tests</span><span class="pill" style="color:var(--ac2)">PLANNED: camera tracking, auto pick-and-place</span></div>
+<a class="btn" href="https://github.com/abishek2-gif/Arduino-robotics-arm">github.com/abishek2-gif/Arduino-robotics-arm</a></div></section>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+var reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+var els=document.querySelectorAll(".rv"),camIdx=0;
+if("IntersectionObserver" in window){
+ var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})},{threshold:.2});els.forEach(function(e){io.observe(e)});
+ var so=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)camIdx=+e.target.dataset.cam})},{threshold:.5});
+ document.querySelectorAll("section").forEach(function(s){so.observe(s)});
+}else els.forEach(function(e){e.classList.add("in")});
+var canvas=document.getElementById("c"),R;
+try{R=new THREE.WebGLRenderer({canvas:canvas,antialias:true})}catch(e){R=null}
+if(!R){document.getElementById("err").style.display="grid";return}
+R.setPixelRatio(Math.min(devicePixelRatio||1,2));R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;
+R.outputEncoding=THREE.sRGBEncoding;R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=1.15;
+var S=new THREE.Scene();S.background=new THREE.Color(0x04070d);S.fog=new THREE.Fog(0x04070d,11,26);
+var cam=new THREE.PerspectiveCamera(42,1,.1,60);
+S.add(new THREE.HemisphereLight(0x8fb4ff,0x0a0f1a,.9));
+var sun=new THREE.DirectionalLight(0xffffff,1.6);sun.position.set(5,9,5);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);
+var sc=sun.shadow.camera;sc.left=-6;sc.right=6;sc.top=6;sc.bottom=-6;sc.near=1;sc.far=25;sun.shadow.bias=-.0004;S.add(sun);
+var rim=new THREE.PointLight(0x00e5ff,2.2,14);rim.position.set(-4,3,-3);S.add(rim);
+var rim2=new THREE.PointLight(0x8a5cff,1.8,14);rim2.position.set(4,2,-4);S.add(rim2);
+var mM=new THREE.MeshStandardMaterial({color:0xaab6c8,metalness:.45,roughness:.38}),
+ mD=new THREE.MeshStandardMaterial({color:0x1a2333,metalness:.5,roughness:.5}),
+ mA=new THREE.MeshStandardMaterial({color:0x00e5ff,emissive:0x00c8e0,emissiveIntensity:1.4,roughness:.3}),
+ mC=new THREE.MeshStandardMaterial({color:0xff7a3d,emissive:0x351200,roughness:.45,metalness:.1});
+function box(w,h,d,m,x,y,z){var o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x||0,y||0,z||0);return o}
+function cyl(r,h,m,seg){return new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,seg||40),m)}
+function joint(g){var c=cyl(.3,.5,mD);c.rotation.x=Math.PI/2;g.add(c);[-1,1].forEach(function(s){var t=new THREE.Mesh(new THREE.TorusGeometry(.3,.035,12,40),mA);t.position.z=s*.26;g.add(t)})}
+function link(g,L){g.add(box(.36,L,.3,mM,0,L/2,0));g.add(box(.39,L*.55,.07,mA,0,L/2,.17));g.add(box(.39,L*.55,.07,mD,0,L/2,-.17))}
+var fl=new THREE.Mesh(new THREE.CircleGeometry(14,64),new THREE.MeshStandardMaterial({color:0x0a1220,metalness:.3,roughness:.65}));fl.rotation.x=-Math.PI/2;fl.receiveShadow=true;S.add(fl);
+var gr=new THREE.GridHelper(28,56,0x00e5ff,0x12304a);gr.position.y=.005;gr.material.transparent=true;gr.material.opacity=.35;S.add(gr);
+function pad(x,z,c){var p=new THREE.Mesh(new THREE.RingGeometry(.42,.5,48),new THREE.MeshBasicMaterial({color:c,side:THREE.DoubleSide}));p.rotation.x=-Math.PI/2;p.position.set(x,.012,z);S.add(p)}
+var A={x:2.1,z:.9},B={x:1.0,z:-2.0};pad(A.x,A.z,0x00e5ff);pad(B.x,B.z,0x8a5cff);
+var base=new THREE.Group();S.add(base);
+base.add(cyl(1.15,.25,mD,64)).position.y=.125;
+var br=new THREE.Mesh(new THREE.TorusGeometry(1.0,.03,12,64),mA);br.rotation.x=Math.PI/2;br.position.y=.27;base.add(br);
+var tur=new THREE.Group();tur.position.y=.25;base.add(tur);
+var tb=cyl(.78,.6,mM,48);tb.position.y=.3;tur.add(tb);
+var tr=new THREE.Mesh(new THREE.TorusGeometry(.78,.03,12,48),mA);tr.rotation.x=Math.PI/2;tr.position.y=.5;tur.add(tr);
+var SY=1.0,L1=1.7,L2=1.55,T=.6;
+var sh=new THREE.Group();sh.position.y=SY-.25;tur.add(sh);joint(sh);link(sh,L1);
+var el=new THREE.Group();el.position.y=L1;sh.add(el);joint(el);link(el,L2);
+var wr=new THREE.Group();wr.position.y=L2;el.add(wr);
+var wj=cyl(.2,.4,mD,32);wj.rotation.x=Math.PI/2;wr.add(wj);
+wr.add(box(.34,.3,.62,mM,0,.22,0));wr.add(box(.36,.06,.64,mA,0,.38,0));
+var f1=box(.14,.42,.08,mD,0,.55,.3),f2=box(.14,.42,.08,mD,0,.55,-.3);wr.add(f1);wr.add(f2);
+var cube=box(.5,.5,.5,mC,A.x,.25,A.z);S.add(cube);
+S.traverse(function(o){if(o.isMesh&&o!==fl){o.castShadow=true}});
+var up=new THREE.Vector3(0,.6,0);
+var st=[ // x,y,z (wrist target), gap, dur, label
+ [1.2,2.6,0,.44,0,"Idle · all axes 90°"],
+ [A.x,1.9,A.z,.44,1.9,"Swing base · reach"],
+ [A.x,.25+T,A.z,.44,1.3,"Descend to part"],
+ [A.x,.25+T,A.z,.26,.8,"Close gripper"],
+ [A.x,1.9,A.z,.26,1.1,"Lift"],
+ [B.x,1.9,B.z,.26,2.0,"Transfer"],
+ [B.x,.25+T,B.z,.26,1.3,"Lower"],
+ [B.x,.25+T,B.z,.44,.8,"Release"],
+ [B.x,1.9,B.z,.44,1.0,"Retreat"],
+ [1.2,2.6,0,.44,1.8,"Return home"]];
+var total=0;st.forEach(function(s){total+=s[4]});
+var cur={x:1.2,y:2.6,z:0,g:.44,ph:"",pi:0},cubeAt=0;
+function ease(t){return t*t*(3-2*t)}
+function seq(t){
+ t=t%total;var i=1,acc=0;
+ for(i=1;i<st.length;i++){if(t<acc+st[i][4])break;acc+=st[i][4]}
+ if(i>=st.length)i=st.length-1;
+ var a=st[i-1],b=st[i],u=ease(Math.min(1,Math.max(0,(t-acc)/b[4])));
+ cur.x=a[0]+(b[0]-a[0])*u;cur.y=a[1]+(b[1]-a[1])*u;cur.z=a[2]+(b[2]-a[2])*u;cur.g=a[3]+(b[3]-a[3])*u;
+ cur.ph=b[5];cur.pi=i;
+}
+var pose={yaw:0,phi:0,th:0};
+function ik(x,y,z){
+ var yaw=Math.atan2(-z,x),r=Math.hypot(x,z),h=y-SY,d=Math.min(Math.hypot(r,h),L1+L2-.002);
+ var E=Math.acos((L1*L1+L2*L2-d*d)/(2*L1*L2)),al=Math.acos((L1*L1+d*d-L2*L2)/(2*L1*d));
+ pose.yaw=yaw;pose.phi=Math.atan2(r,h)-al;pose.th=Math.PI-E;
+}
+var camT=[[5.4,3.8,7.2,.8,1.5,-.2],[3.1,2.3,3.8,0,1.1,0],[1.6,3.6,5.4,1.1,2.3,0],null,[0,8,7.5,.8,0,-.6],[-4.8,3.2,6.8,.6,1.4,0]];
+var cp=new THREE.Vector3(5.4,3.8,7.2),cl=new THREE.Vector3(.8,1.5,-.2),tp=new THREE.Vector3(),tl=new THREE.Vector3();
+var mx=0,my=0;addEventListener("pointermove",function(e){mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5},{passive:true});
+function size(){var w=innerWidth,h=innerHeight;R.setSize(w,h,false);cam.aspect=w/h;cam.fov=w<700?58:42;cam.updateProjectionMatrix()}
+addEventListener("resize",size);size();
+var lbs=[].slice.call(document.querySelectorAll(".lb")),pts=[new THREE.Vector3(),new THREE.Vector3(),new THREE.Vector3(),new THREE.Vector3()];
+var $=function(i){return document.getElementById(i)},clock=new THREE.Clock(),T0=0,lastPi=0;
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function frame(){
+ requestAnimationFrame(frame);
+ var dt=Math.min(clock.getDelta(),.05);if(!reduce)T0+=dt;
+ seq(reduce?1.9:T0);ik(cur.x,cur.y,cur.z);
+ tur.rotation.y=pose.yaw;sh.rotation.z=-pose.phi;el.rotation.z=-pose.th;wr.rotation.z=-(Math.PI-(pose.phi+pose.th));
+ f1.position.z=cur.g;f2.position.z=-cur.g;
+ var carry=cur.pi>=3&&(cur.pi<7||(cur.pi===7&&false));
+ if(cur.pi===3||cur.pi===4||cur.pi===5||cur.pi===6){cube.position.set(cur.x,cur.y-T+.0,cur.z)}
+ else if(cur.pi===7||cur.pi===8||cur.pi===9){cube.position.set(B.x,.25,B.z)}
+ else{cube.position.set(A.x,.25,A.z)}
+ if(cur.pi<lastPi){cube.scale.setScalar(.01)}lastPi=cur.pi;
+ cube.scale.setScalar(Math.min(1,cube.scale.x+dt*2.5));
+ // camera
+ var k=camT[camIdx];
+ if(k){tp.set(k[0],k[1],k[2]);tl.set(k[3],k[4],k[5])}
+ else{tl.set(cur.x,cur.y-T*.6,cur.z);tp.set(cur.x+1.9,cur.y+.9,cur.z+2.3)}
+ tp.x+=mx*.9;tp.y-=my*.5;
+ var s=1-Math.pow(.02,dt);cp.lerp(tp,s*.9);cl.lerp(tl,s*1.2);
+ cam.position.copy(cp);cam.lookAt(cl);
+ S.updateMatrixWorld(true);
+ tur.getWorldPosition(pts[0]);pts[0].y+=.3;sh.getWorldPosition(pts[1]);el.getWorldPosition(pts[2]);wr.getWorldPosition(pts[3]);
+ var w=innerWidth,h=innerHeight,on=camIdx<4;
+ lbs.forEach(function(l,i){var v=pts[i].clone().project(cam);var vis=on&&v.z<1&&(camIdx===0||camIdx===i+1||camIdx===3&&i===3||camIdx===2&&i===2);
+  l.style.opacity=vis?1:0;l.style.transform="translate("+((v.x*.5+.5)*w+10)+"px,"+((-v.y*.5+.5)*h-10)+"px)"});
+ var deg=function(r){return r*180/Math.PI};
+ var sv=[clamp(90+deg(pose.yaw),0,180),clamp(90+deg(pose.phi),25,155),clamp(20+deg(pose.th)*.9,20,160),clamp(45+(cur.g-.26)/.18*75,45,120)];
+ var lo=[0,25,20,45],hi=[180,155,160,120];
+ $("ph").textContent=cur.ph;
+ for(var i=0;i<4;i++){$("n"+i).textContent=Math.round(sv[i])+"°";$("b"+i).style.width=((sv[i]-lo[i])/(hi[i]-lo[i])*100)+"%"}
+ R.render(S,cam);
+}
+frame();
+})();
+</script></body></html>
