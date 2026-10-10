@@ -1,84 +1,48 @@
 # Arduino Robotic Arm
+A beginner robotics project using an Arduino Uno, two joysticks and four positional servos: base, shoulder, elbow and gripper.
 
-A four-axis Arduino Uno robotic arm project with joystick control and an interactive browser animation for portfolio/demo use.
+**Status:** starter firmware and a browser concept animation are available. Physical assembly, calibration, compile/upload verification and hardware testing have not been confirmed. Camera tracking and automatic pick-and-place on hardware are planned.
 
-## Project Overview
+## Start here
+1. Review the [components](docs/components.md) and choose servos suitable for your frame and load.
+2. Follow the [wiring guide](docs/wiring.md) and [diagram](docs/circuit-diagram.svg).
+3. Read [assembly](docs/assembly.md) and [calibration](docs/calibration.md) before powering the assembled arm.
+4. Open [robotic_arm_joystick.ino](arduino/robotic_arm_joystick/robotic_arm_joystick.ino) in Arduino IDE. Keep the sketch in its matching folder.
+5. Install the official Arduino Servo library if it is missing. Select Arduino Uno and the connected USB port, then Verify and Upload with servo power off.
+6. Test one unloaded servo first, then record results in the [test checklist](docs/testing.md).
 
-This project is designed as a beginner-friendly embedded systems and robotics build. The first version uses two joystick modules to control four servo motors:
+## Controls and connections
+| Axis | Joystick input | Servo signal | Example code limits |
+|---|---|---|---|
+| Base | Joystick 1 VRx → A0 | D3 | 0–180° |
+| Shoulder | Joystick 1 VRy → A1 | D5 | 25–155° |
+| Elbow | Joystick 2 VRx → A2 | D6 | 20–160° |
+| Gripper | Joystick 2 VRy → A3 | D9 | 45–120° |
 
-- Base rotation
-- Shoulder movement
-- Elbow movement
-- Gripper open/close
+These are example software limits, **not verified safe limits for your arm**. All axes start at 90°. Calibrate with horns detached before mounting.
 
-The repository also includes an interactive HTML animation that demonstrates a pick-and-place motion before the physical hardware is fully completed.
+Joystick deflection changes angle in 2° steps about every 20 ms; releasing the joystick holds the commanded angle. This is fixed-speed incremental control, not proportional positioning.
 
-## Files
+Power the Uno by USB and the joystick modules from Uno 5V/GND. Power servos from a separate regulated supply matching their ratings; join grounds. Do not connect the servo supply positive rail to Uno 5V.
 
-| File | Purpose |
-|---|---|
-| `arduino/robotic_arm_joystick/robotic_arm_joystick.ino` | Arduino Uno joystick controller sketch |
-| `robotic-arm-showcase.html` | Interactive robotic arm animation/demo |
-| `README.md` | Project explanation and setup guide |
+## Browser demonstration
+Download [robotic-arm-showcase.html](robotic-arm-showcase.html) and open it in a modern browser. It contains play/pause, reset and four angle sliders. GitHub's file view displays the source; download it to run it.
 
-## Hardware Required
+This is an illustrative animation, not a calibrated physics simulation. Base rotation is shown by a dial, and the example serial readout does not send commands. The joystick firmware does not accept serial or camera commands.
 
-- Arduino Uno
-- 4 servo motors
-- 2 joystick modules
-- External 5V servo power supply
-- Jumper wires
-- Robotic arm frame or 3D printed structure
+## Documentation
+- [Components and selection worksheet](docs/components.md)
+- [Wiring and power](docs/wiring.md)
+- [Assembly](docs/assembly.md)
+- [Calibration](docs/calibration.md)
+- [Testing and results](docs/testing.md)
+- [Troubleshooting](docs/troubleshooting.md)
+- [Demo recording](docs/demo.md) and [photo checklist](media/README.md)
+- [Roadmap](docs/roadmap.md) and [camera upgrade design](docs/camera-setup.md)
 
-Important: do not power all servos directly from the Arduino Uno. Use an external 5V supply for the servos and connect the external power ground to Arduino GND.
+## References
+- [Arduino Servo library](https://github.com/arduino-libraries/Servo)
+- [Arduino servo troubleshooting](https://support.arduino.cc/hc/en-us/articles/360017053760-Troubleshoot-servo-motors)
 
-## Pin Mapping
-
-| Component | Arduino Pin |
-|---|---|
-| Joystick 1 VRx | A0 |
-| Joystick 1 VRy | A1 |
-| Joystick 2 VRx | A2 |
-| Joystick 2 VRy | A3 |
-| Base servo signal | D3 |
-| Shoulder servo signal | D5 |
-| Elbow servo signal | D6 |
-| Gripper servo signal | D9 |
-
-## Control Mapping
-
-| Joystick Control | Robotic Arm Movement |
-|---|---|
-| Joystick 1 left/right | Base rotation |
-| Joystick 1 up/down | Shoulder movement |
-| Joystick 2 left/right | Elbow movement |
-| Joystick 2 up/down | Gripper open/close |
-
-## How To Upload The Arduino Code
-
-1. Open `arduino/robotic_arm_joystick/robotic_arm_joystick.ino` in Arduino IDE.
-2. Select `Arduino Uno` from the board menu.
-3. Connect the Arduino Uno using USB.
-4. Upload the sketch.
-5. Test one servo first, then connect the full robotic arm.
-
-## View The Animation
-
-Download `robotic-arm-showcase.html` and open it in a modern web browser.
-
-The animation includes:
-
-- Play/Pause demo motion
-- Manual sliders for each robotic arm axis
-- Pick-and-place style movement
-- Example servo angle values for explanation/demo use
-
-This animation is a concept visualization. It does not communicate with the Arduino directly.
-
-## Future Improvements
-
-- Add record and replay movement mode
-- Add camera/gesture control using Python, OpenCV or MediaPipe
-- Send angle values from laptop to Arduino through USB serial
-- Add project photos and demo videos
-- Create a LinkedIn and portfolio write-up
+## License
+Original project code and documentation are provided under the [MIT License](LICENSE). External libraries retain their own licenses.

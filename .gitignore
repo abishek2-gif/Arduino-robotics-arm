@@ -1,0 +1,21 @@
+# Local development
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*~
+# Build outputs
+build/
+*.elf
+*.hex
+*.o
+# Future Python tooling
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+# Local secrets
+.env
+.env.*
+!.env.example
